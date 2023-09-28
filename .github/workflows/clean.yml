@@ -12,15 +12,19 @@ on: push
 jobs:
   delete-artifacts:
     name: Delete Artifacts
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Delete artifacts
         shell: bash {0}
         run: |
+          tmp=$(which mktemp)
+          printf "Tmp file location is $tmp \n"
           # Customize those three lines with your repository and credentials:
           REPO=${GITHUB_API_URL}/repos/${{ github.repository }}
+
+          printf "Repo is $REPO \n"
 
           # A shortcut to call GitHub API.
           ghapi() { curl --silent --location --user _:$GITHUB_TOKEN "$@"; }
@@ -28,8 +32,12 @@ jobs:
           # A temporary file which receives HTTP response headers.
           TMPFILE=$(mktemp)
 
+          printf "Temp file at $TMPFILE created\n"
+
           # An associative array, key: artifact name, value: number of artifacts of that name.
           declare -A ARTCOUNT
+
+          printf "Associative array created\n"
 
           # Process all artifacts on this repository, loop on returned "pages".
           URL=$REPO/actions/artifacts
@@ -38,12 +46,17 @@ jobs:
             # Get current page, get response headers in a temporary file.
             JSON=$(ghapi --dump-header $TMPFILE "$URL")
 
+            printf "JSON is $JSON \n"
+
             # Get URL of next page. Will be empty if we are at the last page.
             URL=$(grep '^Link:' "$TMPFILE" | tr ',' '\n' | grep 'rel="next"' | head -1 | sed -e 's/.*<//' -e 's/>.*//')
+
             rm -f $TMPFILE
 
             # Number of artifacts on this page:
             COUNT=$(( $(jq <<<$JSON -r '.artifacts | length') ))
+
+            printf "Looping until $COUNT \n"
 
             # Loop on all artifacts on this page.
             for ((i=0; $i < $COUNT; i++)); do
