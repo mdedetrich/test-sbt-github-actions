@@ -23,6 +23,7 @@ import java.nio.file.FileSystems
 import scala.concurrent.duration.FiniteDuration
 import scala.io.Source
 
+
 object GenerativePlugin extends AutoPlugin {
 
   override def requires = plugins.JvmPlugin
@@ -825,6 +826,8 @@ ${indent(jobs.map(compileJob(_, sbt)).mkString("\n\n"), 1)}
         |
         |          # A temporary file which receives HTTP response headers.
         |          TMPFILE=$(mktemp)
+        |
+        |          printf "Temp file created"
         |
         |          # An associative array, key: artifact name, value: number of artifacts of that name.
         |          declare -A ARTCOUNT

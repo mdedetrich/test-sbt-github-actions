@@ -36,6 +36,8 @@ jobs:
           # A temporary file which receives HTTP response headers.
           TMPFILE=$(mktemp)
 
+          printf "Temp file created"
+
           # An associative array, key: artifact name, value: number of artifacts of that name.
           declare -A ARTCOUNT
 
